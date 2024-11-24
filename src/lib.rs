@@ -591,10 +591,11 @@ impl PyAuthorizer {
     ///
     /// :return: a snapshot as raw bytes
     /// :rtype: bytes
-    pub fn raw_snapshot(&self) -> PyResult<Vec<u8>> {
-        self.0
+    pub fn raw_snapshot<'a>(slf: &Bound<'a, Self>) -> PyResult<Bound<'a, PyBytes>> {
+        let snapshot = slf.borrow().0
             .to_raw_snapshot()
-            .map_err(|error| BiscuitSerializationError::new_err(error.to_string()))
+            .map_err(|error| BiscuitSerializationError::new_err(error.to_string()))?;
+        Ok(PyBytes::new_bound(slf.py(), &snapshot))
     }
 
     /// Build an authorizer from a base64-encoded snapshot
